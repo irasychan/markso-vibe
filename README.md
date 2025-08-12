@@ -4,9 +4,9 @@
 </div>
 
 ## 1. Overview
-An incremental expense tracking prototype. All functional scope & decisions live in <code>FEATURES.md</code> (single source of truth + temporal roadmap). Every code change starts with updating/adding Gherkin scenarios (red → green) before implementation.
+Incremental expense tracking prototype. Functional scope & decisions live in `FEATURES.md` (single source of truth + temporal roadmap). Each change begins by updating/adding Gherkin scenarios (red → green) before implementation.
 
-Current state (see checklist in `FEATURES.md` for detail):
+Current state (see `FEATURES.md` for detail):
 * Core expense entry (summary, amount, category) implemented.
 * Validation: required summary, positive amount, max 2 decimals (reject >2), blank category defaults to `uncategorized`.
 * Category normalization + duplicate (case/whitespace) reuse.
@@ -17,7 +17,7 @@ Current state (see checklist in `FEATURES.md` for detail):
 * Next.js 15 (App Router)
 * Tailwind CSS v4 (design tokens in `globals.css`)
 * TypeScript (strict, noEmit)
-* Cucumber (`@cucumber/cucumber`) for logic & UI BDD (`@ui` tag)
+* Cucumber (`@cucumber/cucumber`) for logic & UI BDD (`@ui` tag) — also provides a consistent, human-readable step layer we can later transform into a visual user journey (overlaying Playwright traces / generating a flow graph)
 * Playwright for smoke / spec tests (and future a11y / visual)
 * Shadcn‑style minimal UI primitives (Button, Input, Card)
 
@@ -52,7 +52,7 @@ npm run bdd                # logic + cucumber UI + Playwright (full pipeline)
 6. Update `FEATURES.md` (checkboxes, decisions). Resolve open questions (`[>]`) into concrete `[x] Decision:` lines.
 7. Commit (single logical change) referencing the backlog item.
 
-See the expanded, canonical workflow steps in section 9 of `FEATURES.md`.
+Expanded workflow: section 11 of `FEATURES.md`.
 
 ## 6. Key Decisions (Snapshot)
 | Area | Decision |
@@ -82,8 +82,8 @@ features/           # Gherkin feature files + step definitions
 tests/              # Playwright spec tests (non-Cucumber)
 ```
 
-## 9. Accessibility & Quality (Planned / Partial)
-Planned backlog items: keyboard-only accessibility scenario, axe-core audit integration, visual regression, friendly error copy pass. Track progress in `FEATURES.md`.
+## 9. Accessibility & Quality (Planned)
+Planned: keyboard-only accessibility scenario, axe-core audit, visual regression, error copy pass (track in `FEATURES.md`).
 
 ## 10. Contributing (Humans & AI Agents)
 * Always start with `FEATURES.md` update before code.
@@ -100,7 +100,10 @@ npm run build && npm start
 Ensure tests pass locally before deploying.
 
 ## 12. Future Directions
-See Phase branches in `FEATURES.md`: Category listing & autocomplete, persistence path (LocalStorage vs API), listing & aggregation, reporting (totals, exports).
+See phases in `FEATURES.md`: category listing & autocomplete, persistence path, listing & aggregation, reporting.
+
+### (Why Gherkin – Additional Rationale)
+Beyond executable specifications & shared language, Gherkin step structure lets us: (a) map each scenario into a directed flow graph, (b) pair each Given/When/Then with Playwright trace segments, and (c) auto‑generate journey visualizations (e.g., Mermaid diagrams or timeline overlays). This upcoming capability is why we retain Gherkin alongside raw Playwright specs.
 
 ---
 Generated from evolving BDD roadmap—update README sections if structural shifts occur beyond what `FEATURES.md` already captures.

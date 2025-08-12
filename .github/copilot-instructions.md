@@ -1,45 +1,103 @@
 ## AI Contributor Guide
 
-Concise orientation for automated agents in this Next.js 15 + Tailwind v4 app (App Router).
+Purpose: Fast orientation for automated agents contributing to this Next.js 15 + Tailwind v4 + TypeScript + Cucumber + Playwright expense tracking MVP.
 
-### Core Layout & Structure
-- All routes under `src/app/`; `layout.tsx` owns font imports (`next/font` Geist) and exposes CSS vars (`--font-geist-*`). Do NOT re-import fonts.
-- `page.tsx` is a minimal server component example (no `"use client"`). Prefer server components; add `"use client"` only for interactive hooks/events.
-- Add new route: `src/app/<segment>/page.tsx` (default export). Keep files small & co-locate only route‑specific assets.
+### 1. Core Layout
+* Routes live under `src/app/`. `layout.tsx` imports fonts once and exposes CSS vars (`--font-geist-*`). Never re-import fonts.
+* Prefer server components; only add `"use client"` when event handlers or browser APIs are required.
+* New route: `src/app/<segment>/page.tsx` (default export). Keep it thin; push reusable UI into `src/components/` (already has shadcn-style primitives under `ui/`).
 
-### Styling & Theming
-- Tailwind v4 initialized in `globals.css` with `@theme inline`; map base vars (`--background`, `--foreground`) to token names (`--color-background`, etc.).
-- To add a color: define base var in `:root`, then add mapped `--color-*` entry inside `@theme inline`, then use via utility (e.g. `bg-background`).
-- Keep component styles as utilities; only modify `globals.css` for new tokens.
+### 2. Styling & Tokens
+* Tailwind v4 + `@theme inline` in `globals.css` maps design tokens.
+* Adding a color/token:
+	1. Add raw CSS var in `:root` (e.g. `--brand-accent: #...;`).
+	2. Map to semantic token inside `@theme inline` (e.g. `--color-accent: var(--brand-accent);`).
+	3. Use via Tailwind utility (`bg-accent` if configured) or `text-[color:var(--color-accent)]` fallback.
+* Only edit `globals.css` for new tokens; prefer utilities elsewhere.
 
-### Imports & Paths
-- Use alias `@/*` (see `tsconfig.json`) for anything inside `src/` (e.g. `import X from '@/components/X'`). Create `src/components/` when the first reusable piece appears.
+### 3. Imports & Paths
+* Use `@/*` alias for anything under `src/`: `import { formatAmount } from '@/lib/money'`.
+* Collocate only route‑specific assets next to their `page.tsx`.
 
-### Assets
-- Static assets live in `public/`; reference with `/asset.svg`. Use `<Image />` when optimization helps (raster) or for consistency (current SVG usage acceptable). `priority` only for above‑the‑fold.
+### 4. Domain Helpers
+* Shared validation & normalization lives in `src/lib/expense.ts` (and related helpers in `money.ts`, `utils.ts`). Always extend these, do not duplicate logic in UI or step definitions.
 
-### Tooling / Environment
-- Node 24 LTS (from broader project README). Current repo has `package-lock.json`; stay with npm unless intentionally migrating (then remove lock and commit new one).
-- Scripts: dev `npm run dev` (Turbopack), build `npm run build`, prod `npm start`, lint `npm run lint`.
-- TypeScript strict + `noEmit`; rely on Next build for type checking. Avoid `any`; prefer specific types or `unknown` + narrowing.
-- ESLint extends `next/core-web-vitals`; fix a11y / performance warnings before merging.
+### 5. BDD & Testing Strategy
+* Single source of functional truth: `FEATURES.md`. Update it BEFORE modifying feature files.
+* Gherkin feature files under `features/` drive implementation (red → green):
+	* Logic scenarios: untagged or `@logic`.
+	* UI behavior: `@ui`.
+	* Planned: `@a11y`, `@visual`, `@smoke` (for selective non-functional runs), future `@journey` metadata.
+* Scripts:
+	* `npm run bdd:logic` → logic scenarios
+	* `npm run bdd:cucumber:ui` → Cucumber UI scenarios
+	* `npm run bdd:ui` → Playwright spec suite (smoke + future a11y/visual)
+	* `npm run bdd` → combined pipeline
+* Avoid adding Playwright spec assertions for behavior already expressed in Gherkin (prevents duplication). If a spec uncovers missing acceptance, migrate that assertion into a scenario.
+* Keep steps high-level & business-facing; factor technical detail into helpers.
 
-### Performance & DX
-- Reuse existing font vars; don’t duplicate font loading.
-- Keep route components fast: minimal logic, delegate shared UI to future `components/` directory.
+### 6. Journey Visualization (Roadmap)
+Planned phased tasks (see `FEATURES.md` backlog): trace hook → Phase A Mermaid diagrams → duplication audit → timings & pass/fail coloring → convergence decision gate. When adding hooks, tag-scope them (only start traces for `@ui`). Generate artifacts into a future `docs/journeys/` (not committed until decided).
 
-### Extension Checklist (apply per PR)
-1. Add/modify route or component under `src/` using alias imports.
-2. Introduce any new design token via the 3-step var pattern (base var -> theme map -> Tailwind utility usage).
-3. Update `metadata` in a route/layout if SEO-relevant change.
-4. Run lint; resolve all errors (treat warnings related to core web vitals seriously).
+### 7. Assets
+* Static assets: `public/`. Reference via `/file.svg`. Use `<Image />` only for raster / optimization; inline or `<img>` fine for simple SVGs.
+* Add new raster images sparingly; prefer existing vector style.
 
-### Testing & Domain Notes
-- No test harness yet. If adding one, prefer lightweight (e.g. Vitest + jsdom) and document commands here.
-- Broader product README mentions BDD/TDD & expense tracking domain—NOT implemented here yet; avoid adding domain scaffolding without explicit task.
+### 8. Tooling / Environment
+* Node 24 LTS. Keep `package-lock.json`; if you migrate package manager you must remove the old lockfile and commit the new one in the same change.
+* TypeScript strict; avoid `any`. Use `unknown` + narrowing where necessary.
+* ESLint (`next/core-web-vitals`) must be clean (warnings in performance/a11y should be fixed, not ignored).
 
-### When Unsure
-- Prefer server components; only clientify minimally.
-- Keep instructions updated when adding API routes (`src/app/api/*`) or shared UI.
+### 9. Performance & DX
+* Do not block the critical path with heavy client components.
+* Reuse layout font & token variables; no duplicate font or global style declarations.
+* Keep components focused; extract pure logic into `src/lib/`.
 
-Feedback: Mention gaps you hit (e.g. need testing section, data layer pattern) so this guide can evolve.
+### 10. Contribution Guardrails
+* ALWAYS:
+	1. Update `FEATURES.md` (add or adjust node, decisions) before changing code/tests.
+	2. Add/modify feature scenarios → watch them fail → implement minimal code to pass.
+	3. Reuse existing step definitions where possible; extend with intent‑revealing wording.
+	4. Run focused script(s) (`bdd:logic`, `bdd:cucumber:ui`) then `bdd` before commit.
+* NEVER:
+	* Re-import fonts or duplicate validation logic.
+	* Introduce behavioral assertions in Playwright specs already covered by Gherkin.
+	* Rename existing `data-test` attributes; add new ones if needed (stable selectors contract).
+
+### 11. Tags (Current & Upcoming)
+| Tag | Purpose | Notes |
+|-----|---------|-------|
+| @logic | Pure domain rule | No UI interaction |
+| @ui | UI behavior / presentation | Eligible for trace capture |
+| @smoke | Lean health subset (future) | Subset of @ui |
+| @a11y | Accessibility scanning (planned) | Will invoke axe routine |
+| @visual | Visual regression snapshot (planned) | Only stable layouts |
+| @journey | (future) mark scenarios for enriched diagram generation | Superset of @ui |
+
+### 12. Adding / Modifying Steps
+* Keep step regex simple & intention-focused.
+* Prefer parameter types (`{int}`, quoted strings) over broad `(.*)` capture where feasible.
+* Internal utilities go in `src/lib/` or a localized helper file, not inline inside step bodies if reused.
+
+### 13. Documentation Hygiene
+* README: update only if structure/stack meaningfully changes; minor backlog/status changes stay in `FEATURES.md`.
+* `FEATURES.md`: maintain decisions list (convert `[>]` → `[x] Decision:` when finalized).
+* Reflect any new test tag or journey phase addition here in this guide.
+
+### 14. Open Gaps / Future Enhancements
+* Automated journey diagram generator CLI script.
+* Tag strategy lint (enforce all domain scenarios explicitly tagged or default policy).
+* a11y & visual hooks wiring.
+* Persistence path selection (LocalStorage vs API route) → will add data layer section when chosen.
+
+### 15. Quick Checklist Before Commit (AI or Human)
+1. `FEATURES.md` updated? (scope + decisions)
+2. New/changed scenarios passing locally? (`npm run bdd`)
+3. No duplicated behavioral assertions in specs?
+4. Lint clean? (`npm run lint`)
+5. Docs (README / this file) updated only if needed?
+
+If blocked, leave a concise NOTE in `FEATURES.md` under Open Questions rather than guessing.
+
+---
+Feedback: Add missing sections you discover (submit PR adjusting this guide) rather than embedding ad-hoc explanations in code comments.

@@ -1,14 +1,27 @@
 # Product Capability Decision Tree (Temporal Roadmap + BDD Source of Truth)
 
-Purpose: Track what exists (implemented in feature files), what is next, and branching future options. Update BEFORE writing/changing any `*.feature` files. Use checkboxes:
-- [x] Implemented (has passing scenarios)
-- [~] Partial (some scenarios exist / more planned)
-- [ ] Not started
-- [>] Decision pending / open question
-- [#] Cancelled 
+Track: current capabilities, upcoming scope, decisions. Always update THIS file before editing any `*.feature` file (red → green workflow). Status codes:
+* [x] Implemented (passing scenarios)
+* [~] Partial (scenarios exist; more to do)
+* [ ] Not started
+* [>] Open decision / question
+* [#] Cancelled / superseded
 
-Root Timeline Phases:
-Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (Deferred / Non‑Goals)
+Phases (macro timeline): Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (Deferred / Non‑Goals)
+
+## Table of Contents
+1. Core Expense Tracking (MVP Trunk)
+2. Category Management (Branch A)
+3. Expense Listing & Aggregation (Branch B)
+4. Validation & UX Feedback (Cross‑Cutting)
+5. Persistence Layer (Branch C)
+6. Reporting & Insights (Branch D)
+7. Non-Goals (Explicit)
+8. Open Questions / Decisions
+9. Tooling & Test Infrastructure
+10. BDD Mapping Table
+11. Update Workflow
+12. Backlog (Next Targets)
 
 ## 0. Core Expense Tracking (MVP Trunk)
 - [x] Expense Entry Basic
@@ -58,13 +71,13 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 - [ ] Weekly total
 - [ ] Export CSV
 
-## 6. Non-Goals (Phase 3 – Explicitly Deferred)
+## 7. Non-Goals (Phase 3 – Explicitly Deferred)
 - [ ] Balance / multi-account ledger
 - [ ] Multi-currency
 - [ ] Authentication / user accounts
 - [ ] Budget forecasting / predictive analytics
 
-## 7. Open Questions / Decisions Needed
+## 8. Open Questions / Decisions Needed
 - [>] Category name max length?
 - [>] Summary max length? (Proposal: 100 chars)
 - [>] Persistence first step? (LocalStorage vs API route)
@@ -73,7 +86,7 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 - [x] Decision: Amount precision policy = reject (>2 decimals => error)
 - [x] Decision: Category mandatory policy = default-uncategorized (blank => "uncategorized")
 
-## 10. Tooling & Test Infrastructure
+## 9. Tooling & Test Infrastructure
 - [x] Cucumber logic BDD suite (`npm run bdd:logic`)
 - [x] Cucumber UI BDD scenarios (@ui tagged)
 - [x] Playwright test runner integration (replaced start-server-and-test) (`npm run bdd:ui`)
@@ -81,7 +94,7 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 - [ ] Add Playwright accessibility assertions (labels & roles)
 - [ ] Introduce visual regression (optional, future) [>]
 
-## 8. BDD Mapping Table (High Level)
+## 10. BDD Mapping Table (High Level)
 | Tree Node | Feature File | Status |
 |-----------|--------------|--------|
 | Expense Entry Basic | `expense_entry.feature` | Implemented |
@@ -89,7 +102,7 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 | Listing | (to be created) | Pending |
 | Persistence | (to be created once path chosen) | Pending |
 
-## 9. Update Workflow (Backlog → BDD → Code → Verification)
+## 11. Update Workflow (Backlog → BDD → Code → Verification)
 1. Select Scope:
 	- Pick ONE backlog item and start with the `NEXT:` template in this file (Backlog section). Keep scope to 1–2 related nodes.
 	- Mark checkbox/state in the tree (section 0+), and add any new decision bullets to section 7 (as [>] until decided).
@@ -128,7 +141,7 @@ Notes:
 	- Keep scenarios deterministic; avoid relying on relative timing or ordering beyond defined acceptance.
 
 ---
-# Backlog (formerly Next Targets, now integrated)
+## 12. Backlog (Next Targets)
 How to start the next task:
 1. Pick ONE backlog item (or create a new bullet here first if missing).
 2. Reply using the template below (copy & fill values) — I will then: (a) move it to "In Progress" inline, (b) add/adjust scenarios, (c) implement & test.
@@ -163,7 +176,7 @@ NEXT: accessibility
 ```
 If the task needs decisions (e.g. length limits, persistence choice) include them under decisions. Omit sections you don’t need.
 
-Backlog Items:
+Backlog Items (grouped):
 // Accessibility & UX
 - [ ] Accessibility UI scenario (keyboard-only navigation, Enter submits, visible focus ring)
 - [ ] Zero amount rejection UI scenario (explicit 0 case)
@@ -174,6 +187,13 @@ Backlog Items:
 - [ ] Full formatted currency assertion in Playwright spec (assert "HK$" prefix)
 - [ ] Axe-core audit scaffold (basic accessibility scan in Playwright)
 - [ ] Visual regression setup (optional snapshot baseline)
+- [ ] Unified BDD runner script (merge cucumber + Playwright orchestration with a single `bdd:all` or refactor existing `bdd` for clarity)
+- [ ] Scenario trace hook (@ui) start/stop Playwright trace & store artifact path
+- [ ] Journey visualization Phase A: scaffold (linear Mermaid per scenario + trace links)
+- [ ] Duplication audit script (Gherkin steps vs Playwright spec assertions) & report
+- [ ] Journey visualization Phase B: enforce de-duplication policy (<25% duplicated assertions)
+- [ ] Journey visualization Phase C: step duration extraction + pass/fail node colorization
+- [ ] Journey visualization Phase D: convergence decision gate (evaluate metrics for potential spec suite trimming)
 
 // Domain / Architecture
 - [x] Centralize validation logic (shared domain module used by UI + step defs)
