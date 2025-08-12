@@ -2,14 +2,16 @@
   "name": "markso-vibe",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "engines": { "node": ">=20 <25" },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "bdd:logic": "cucumber-js --require-module ts-node/register --require features/step_definitions/**/*.ts --tags @logic features/**/*.feature",
-    "bdd:ui": "playwright test",
-    "bdd:cucumber:ui": "cucumber-js --require-module ts-node/register --require features/step_definitions/**/*.ts --tags @ui features/**/*.feature",
+  "bdd:logic": "cucumber-js --import ts-node/register --import features/step_definitions/**/*.ts --tags @logic features/**/*.feature",
+  "bdd:ui": "playwright test",
+  "bdd:cucumber:ui": "cucumber-js --import ts-node/register --import features/step_definitions/**/*.ts --tags @ui features/**/*.feature",
     "bdd": "npm run bdd:logic && npm run bdd:cucumber:ui && npm run bdd:ui"
   },
   "dependencies": {
@@ -27,8 +29,7 @@
     "@types/react": "^19",
     "eslint-config-next": "15.4.6",
     "eslint": "^9",
-    "playwright": "^1.48.0",
-    "start-server-and-test": "^2.0.3",
+  "playwright": "^1.48.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5"

@@ -1,5 +1,5 @@
 import { Given, When, Then, BeforeAll, AfterAll } from '@cucumber/cucumber';
-import { chromium, Browser, Page } from 'playwright';
+import { chromium, type Browser, type Page } from 'playwright';
 import assert from 'node:assert';
 
 let browser: Browser; let page: Page;

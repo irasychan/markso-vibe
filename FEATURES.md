@@ -164,7 +164,26 @@ NEXT: accessibility
 If the task needs decisions (e.g. length limits, persistence choice) include them under decisions. Omit sections you don’t need.
 
 Backlog Items:
-- [x] Currency formatting decision & implementation (HKD en-HK)
-- [ ] Accessibility UI scenario (keyboard + labels)
-- [ ] Persistence initial path (choose & implement scenarios)
+// Accessibility & UX
+- [ ] Accessibility UI scenario (keyboard-only navigation, Enter submits, visible focus ring)
+- [ ] Zero amount rejection UI scenario (explicit 0 case)
+- [ ] Friendly error copy review pass (improve current validation messages)
+
+// Testing & Quality
+- [ ] Tag strategy fix (make all logic scenarios @logic OR adjust bdd:logic to include untagged)
+- [ ] Full formatted currency assertion in Playwright spec (assert "HK$" prefix)
+- [ ] Axe-core audit scaffold (basic accessibility scan in Playwright)
+- [ ] Visual regression setup (optional snapshot baseline)
+
+// Domain / Architecture
+- [x] Centralize validation logic (shared domain module used by UI + step defs)
+- [ ] Category normalization explicit logic scenario (trim + lowercase assertion)
+
+// Data & Features
+- [ ] Timestamp field introduction (add createdAt to expenses) + adapt planned listing/reporting scenarios
 - [ ] Listing chronological implementation & tests
+- [ ] Persistence initial path (choose: LocalStorage vs API route) and implement chosen path
+
+// Tooling / Maintenance
+- [ ] Remove unused dependency (start-server-and-test) & add engines field to package.json
+- [ ] Add Playwright accessibility assertions (labels & roles) (extends a11y coverage)

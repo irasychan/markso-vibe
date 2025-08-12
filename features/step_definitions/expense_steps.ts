@@ -1,5 +1,6 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import assert from 'node:assert';
+import { validateAndBuildExpense } from '../../src/lib/expense.ts';
 
 interface Expense { summary: string; amount: number; category: string; }
 
@@ -13,30 +14,33 @@ Given('the expense list is empty', function () {
   lastError = null;
 });
 
-When('I enter an expense with summary {string} amount {float} category {string}', function (summary: string, amount: number, category: string) {
+When('I enter an expense with summary {string} amount {string} category {string}', function (summary: string, amountRaw: string, category: string) {
   lastError = null;
-  if (!summary || summary.trim() === '') {
-    lastError = 'Summary is required';
+  const result = validateAndBuildExpense({ summary, amountRaw, category });
+  if (!result.ok) {
+    lastError = result.error;
     return;
   }
-  if (amount <= 0) {
-    lastError = 'Amount must be positive';
+  // category normalization & duplicate handling
+  if (!categories.has(result.expense.category)) {
+    categories.add(result.expense.category);
+  }
+  expenses.push(result.expense);
+});
+
+// Backward compatibility: legacy float pattern (will be migrated to string form in future)
+When('I enter an expense with summary {string} amount {float} category {string}', function (summary: string, amountNum: number, category: string) {
+  lastError = null;
+  const amountRaw = amountNum.toString();
+  const result = validateAndBuildExpense({ summary, amountRaw, category });
+  if (!result.ok) {
+    lastError = result.error;
     return;
   }
-  // Amount precision policy: reject if more than 2 decimals
-  const decimals = amount.toString().split('.')[1];
-  if (decimals && decimals.length > 2) {
-    lastError = 'Amount must have at most 2 decimals';
-    return;
+  if (!categories.has(result.expense.category)) {
+    categories.add(result.expense.category);
   }
-  let normalizedCategory = category.trim().toLowerCase();
-  if (!normalizedCategory) {
-    normalizedCategory = 'uncategorized'; // default policy
-  }
-  if (!categories.has(normalizedCategory)) {
-    categories.add(normalizedCategory); // silent reuse otherwise
-  }
-  expenses.push({ summary: summary.trim(), amount, category: normalizedCategory });
+  expenses.push(result.expense);
 });
 
 Then('the expense is stored', function () {

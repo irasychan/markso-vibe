@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatCurrencyHKD } from "@/lib/money";
+import { validateAndBuildExpense } from "@/lib/expense";
 
 interface Expense { summary: string; amount: number; category: string; }
 
@@ -17,26 +18,12 @@ export default function Home() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!summary.trim()) {
-      setError("Summary is required");
+    const result = validateAndBuildExpense({ summary, amountRaw: amount, category });
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
-    const num = Number(amount);
-    if (!(num > 0)) {
-      setError("Amount must be positive");
-      return;
-    }
-    const decimals = amount.includes('.') ? amount.split('.')[1] : '';
-    if (decimals.length > 2) {
-      setError('Amount must have at most 2 decimals');
-      return;
-    }
-    let normalizedCategory = category.trim().toLowerCase();
-    if (!normalizedCategory) {
-      normalizedCategory = 'uncategorized';
-    }
-    const newExpense = { summary: summary.trim(), amount: num, category: normalizedCategory };
-    setExpenses(prev => [...prev, newExpense]);
+    setExpenses(prev => [...prev, result.expense]);
     setSummary(""); setAmount(""); setCategory("");
   }
 
