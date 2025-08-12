@@ -10,7 +10,7 @@ Feature: Expense Entry UI
     And I fill the amount field with "3.50"
     And I fill the category field with "Food"
     And I submit the expense form
-    Then I should see an expense row with summary "Coffee" amount "$3.50" category "food"
+    Then I should see an expense row with summary "Coffee" amount "HK$3.50" category "food"
 
   Scenario: Reject negative amount
     When I fill the summary field with "Refund"
@@ -49,4 +49,18 @@ Feature: Expense Entry UI
     And I fill the amount field with "1"
     And I fill the category field with ""
     And I submit the expense form
-    Then I should see an expense row with summary "Water" amount "$1.00" category "uncategorized"
+    Then I should see an expense row with summary "Water" amount "HK$1.00" category "uncategorized"
+
+  Scenario: Display formatted HKD amount with grouping
+    When I fill the summary field with "Laptop"
+    And I fill the amount field with "1234.5"
+    And I fill the category field with "Gear"
+    And I submit the expense form
+    Then I should see an expense row with summary "Laptop" amount "HK$1,234.50" category "gear"
+
+  Scenario: Display trailing zeros for whole number
+    When I fill the summary field with "Notebook"
+    And I fill the amount field with "8"
+    And I fill the category field with "Stationery"
+    And I submit the expense form
+    Then I should see an expense row with summary "Notebook" amount "HK$8.00" category "stationery"

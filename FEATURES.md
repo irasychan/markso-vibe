@@ -5,6 +5,7 @@ Purpose: Track what exists (implemented in feature files), what is next, and bra
 - [~] Partial (some scenarios exist / more planned)
 - [ ] Not started
 - [>] Decision pending / open question
+- [#] Cancelled 
 
 Root Timeline Phases:
 Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (Deferred / Non‑Goals)
@@ -15,12 +16,14 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 	- [x] Validation: positive amount (reject ≤ 0)
 	- [x] Validation: required non-empty summary
 	    - [x] Create basic UI with NextJS App
-	- [~] Category handling
+	- [~] Category handling (partial: inline create + duplicate prevention done; length rules pending)
 		- [x] Create inline if new (lowercased normalization)
 		- [x] Prevent duplicates differing only by case/whitespace (silent-reuse implemented)
-		- [ ] Enforce max length for category name (decide limit) [>]
-	- [ ] Summary length limit (~100 chars) enforced [> decision: exact max]
+		- [#] ~~Enforce max length for category name (decide limit) [>]~~
+	- [#] ~~Summary length limit (~100 chars) enforced [> decision: exact max]~~
 	- [x] Amount: 2 decimal precision enforcement (reject >2 decimals)
+	- [x] Blank category defaults to "uncategorized" (policy decision)
+	- [x] Currency formatting decision & implementation (HKD en-HK)
 
 ## 1. Category Management Enhancements (Branch A)
 - [ ] List existing categories for selection (UI + step definition)
@@ -40,6 +43,8 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 - [x] Empty/whitespace category handled (auto defaults to "uncategorized" per decision, no error)
 - [ ] Friendly error copy review pass (replace placeholder strings)
 - [ ] Client-side formatting of amount input
+- [ ] Accessibility scenario: keyboard-only submission & focus outline
+- [ ] Axe-core (or similar) basic a11y audit script
 
 ## 4. Persistence Layer (Branch C - Choose Path)
 - Current: in-memory only (step definitions array)
@@ -63,10 +68,18 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 - [>] Category name max length?
 - [>] Summary max length? (Proposal: 100 chars)
 - [>] Persistence first step? (LocalStorage vs API route)
-- [>] Currency formatting (Use `Intl.NumberFormat('en-US', { style:'currency', currency:'USD' })`?)
+- [x] Decision: Currency formatting = Intl.NumberFormat('en-HK', { style:'currency', currency:'HKD' })
 - [x] Decision: Category duplicate handling = silent-reuse
 - [x] Decision: Amount precision policy = reject (>2 decimals => error)
 - [x] Decision: Category mandatory policy = default-uncategorized (blank => "uncategorized")
+
+## 10. Tooling & Test Infrastructure
+- [x] Cucumber logic BDD suite (`npm run bdd:logic`)
+- [x] Cucumber UI BDD scenarios (@ui tagged)
+- [x] Playwright test runner integration (replaced start-server-and-test) (`npm run bdd:ui`)
+- [x] Shadcn-style UI primitives (Button, Input, Card) adopted
+- [ ] Add Playwright accessibility assertions (labels & roles)
+- [ ] Introduce visual regression (optional, future) [>]
 
 ## 8. BDD Mapping Table (High Level)
 | Tree Node | Feature File | Status |
@@ -76,26 +89,82 @@ Phase 0 (Done) → Phase 1 (Near Term) → Phase 2 (Exploratory) → Phase 3 (De
 | Listing | (to be created) | Pending |
 | Persistence | (to be created once path chosen) | Pending |
 
-## 9. Update Workflow (Logic + UI BDD)
-1. Plan: Update this file first (checkboxes, add nodes, clarify decisions). Keep scope small (1–2 nodes per iteration).
-2. Feature Files: Add/modify `.feature` with appropriate tag:
-	- `@logic` (default / omit tag) for pure domain scenarios (no browser).
-	- `@ui` for browser scenarios interacting with real page (Playwright).
-3. Steps: Implement or extend step definitions under:
-	- Logic: `features/step_definitions/*.ts`
-	- UI: `features/step_definitions/ui/*.ts` (reuse data-test selectors; add new selectors if needed in UI code).
-4. Run tests incrementally:
-	- Domain only: `npm run bdd:logic`
-	- UI only: `npm run bdd:ui`
-	- Full suite: `npm run bdd`
-5. Make UI/code changes only after red → green cycle for new scenarios.
-6. Update this file again if any scope shifted during implementation (avoid drift).
-7. Open Questions: Convert resolved [>] items into concrete limits / decisions here before enforcing in code.
+## 9. Update Workflow (Backlog → BDD → Code → Verification)
+1. Select Scope:
+	- Pick ONE backlog item and start with the `NEXT:` template in this file (Backlog section). Keep scope to 1–2 related nodes.
+	- Mark checkbox/state in the tree (section 0+), and add any new decision bullets to section 7 (as [>] until decided).
+2. Specify Acceptance:
+	- Convert acceptance bullets into Gherkin scenarios. Prefer smallest set that drives implementation (red first).
+3. Author / Modify Feature Files:
+	- Logic/domain rules only: scenario without `@ui` tag (or add explicit `@logic`).
+	- UI behavior / presentation: add `@ui` tagged scenario(s) in existing or new `ui_*.feature` file.
+	- Keep selectors stable; only add new `data-test` attributes for new semantic elements.
+4. Implement Step Definitions:
+	- Logic steps: `features/step_definitions/*.ts`
+	- UI steps: `features/step_definitions/ui/*.ts`
+	- Reuse existing generic steps when possible; extend cautiously.
+5. Run Focused Tests (Red → Green):
+	- Logic only: `npm run bdd:logic`
+	- UI Cucumber only: `npm run bdd:cucumber:ui` (not `bdd:ui` which is Playwright specs)
+	- Expect new scenarios to fail first; implement minimal code to pass.
+6. Code Implementation:
+	- For UI, prefer server components unless interactivity needed.
+	- Extract reusable formatting/helpers to `src/lib/*` (e.g., `money.ts`).
+7. Broader Verification:
+	- Playwright smoke/specs: `npm run bdd:ui` (ensure core flows still pass after change).
+	- Full pipeline: `npm run bdd` (logic + cucumber UI + Playwright).
+8. Decisions & Documentation:
+	- Resolve any [>] open questions → convert to `[x] Decision:` lines in section 7.
+	- Update mapping table if new feature file added; mark backlog checkbox done.
+9. Quality Pass:
+	- Run `npm run lint` if substantial code changes.
+	- Confirm no unused selectors / dead steps (prune if obvious).
+10. Commit / Next:
+	- Keep commit scope aligned with single backlog item.
+	- Choose next backlog item only after completing above and updating this file.
+   
+Notes:
+	- `bdd:ui` (Playwright) complements cucumber `@ui` scenarios; cucumber drives behavior, Playwright provides independent smoke / future accessibility & visual tests.
+	- Keep scenarios deterministic; avoid relying on relative timing or ordering beyond defined acceptance.
 
 ---
-Next Immediate Targets:
-1. [x] Replace start-server-and-test with Playwright test runner (scripts updated: `bdd:ui`).
-2. [x] Add shadcn-style UI primitives & refactor form (Button, Input, Card) preserving data-test selectors.
-3. [ ] Add accessibility UI scenario (keyboard submit + label association) & axe-core scan (future enhancement).
-4. [ ] Decide summary/category max lengths and implement validation.
-5. [ ] Choose persistence path (likely LocalStorage) and create `persistence_local.feature`.
+# Backlog (formerly Next Targets, now integrated)
+How to start the next task:
+1. Pick ONE backlog item (or create a new bullet here first if missing).
+2. Reply using the template below (copy & fill values) — I will then: (a) move it to "In Progress" inline, (b) add/adjust scenarios, (c) implement & test.
+
+Reply Template:
+
+To Analyze Task:
+```
+THINK:
+item: <exact backlog bullet text>
+depth: (shallow|auto|deep)
+constraints:
+    - <constraints 1>
+optional_notes: <anything else>
+```
+
+To Start Next Task:
+```
+NEXT:
+item: <exact backlog bullet text>
+acceptance:
+	- <concise bullet 1>
+	- <bullet 2>
+decisions:
+	key1=value1
+	key2=value2
+optional_notes: <anything else>
+```
+Minimal Quick Form (shorthand accepted):
+```
+NEXT: accessibility
+```
+If the task needs decisions (e.g. length limits, persistence choice) include them under decisions. Omit sections you don’t need.
+
+Backlog Items:
+- [x] Currency formatting decision & implementation (HKD en-HK)
+- [ ] Accessibility UI scenario (keyboard + labels)
+- [ ] Persistence initial path (choose & implement scenarios)
+- [ ] Listing chronological implementation & tests
