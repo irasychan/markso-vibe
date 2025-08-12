@@ -12,7 +12,8 @@
   "bdd:logic": "cucumber-js --import ts-node/register --import features/step_definitions/**/*.ts --tags @logic features/**/*.feature",
   "bdd:ui": "playwright test",
   "bdd:cucumber:ui": "cucumber-js --import ts-node/register --import features/step_definitions/**/*.ts --tags @ui features/**/*.feature",
-    "bdd": "npm run bdd:logic && npm run bdd:cucumber:ui && npm run bdd:ui"
+  "bdd": "npm run bdd:logic && npm run bdd:cucumber:ui && npm run bdd:ui",
+  "journeys:gen": "ts-node scripts/generate-journeys.ts"
   },
   "dependencies": {
     "react": "19.1.0",

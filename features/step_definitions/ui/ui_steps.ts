@@ -1,19 +1,55 @@
-import { Given, When, Then, BeforeAll, AfterAll } from '@cucumber/cucumber';
+import { Given, When, Then, BeforeAll, AfterAll, Before, After } from '@cucumber/cucumber';
 import { chromium, type Browser, type Page } from 'playwright';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import assert from 'node:assert';
 
 let browser: Browser; let page: Page;
+let tracingActive = false;
+let currentTracePath: string | null = null;
+
+function slugify(input: string) {
+  return input.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'scenario';
+}
+
+const tracesDir = path.join(process.cwd(), 'test-results', 'traces');
 
 BeforeAll(async () => {
   browser = await chromium.launch();
+  await fs.mkdir(tracesDir, { recursive: true });
 });
 
 AfterAll(async () => {
   await browser.close();
 });
 
-Given('I open the expense entry page', async () => {
+// Start a fresh page + tracing before each @ui scenario
+Before({ tags: '@ui' }, async function (scenario) {
   page = await browser.newPage();
+  const scenarioName = slugify(scenario.pickle.name);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  currentTracePath = path.join(tracesDir, `${timestamp}-${scenarioName}.zip`);
+  tracingActive = true;
+  await page.context().tracing.start({ screenshots: true, snapshots: true, title: scenario.pickle.name });
+});
+
+// Stop tracing & export after scenario
+After({ tags: '@ui' }, async function () {
+  if (tracingActive) {
+    try {
+      await page.context().tracing.stop({ path: currentTracePath! });
+      this.attach(`Trace saved: ${path.relative(process.cwd(), currentTracePath!)}`);
+    } catch (err) {
+      this.attach(`Trace stop failed: ${(err as Error).message}`);
+    }
+  }
+  tracingActive = false;
+  currentTracePath = null;
+  await page.close();
+});
+
+Given('I open the expense entry page', async () => {
+  // Page is prepared in Before hook; just navigate (navigation captured in trace)
   await page.goto('http://localhost:3000/');
 });
 

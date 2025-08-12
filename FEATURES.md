@@ -183,13 +183,16 @@ Backlog Items (grouped):
 - [ ] Friendly error copy review pass (improve current validation messages)
 
 // Testing & Quality
-- [ ] Tag strategy fix (make all logic scenarios @logic OR adjust bdd:logic to include untagged)
-- [ ] Full formatted currency assertion in Playwright spec (assert "HK$" prefix)
+- [x] Tag strategy fix (make all logic scenarios @logic OR adjust bdd:logic to include untagged)
+- [x] Full formatted currency assertion in Playwright spec (assert "HK$" prefix)
+- [x] Reduce Playwright spec to minimal smoke (remove redundant behavioral assertions)
 - [ ] Axe-core audit scaffold (basic accessibility scan in Playwright)
 - [ ] Visual regression setup (optional snapshot baseline)
 - [ ] Unified BDD runner script (merge cucumber + Playwright orchestration with a single `bdd:all` or refactor existing `bdd` for clarity)
 - [ ] Scenario trace hook (@ui) start/stop Playwright trace & store artifact path
+ - [x] Scenario trace hook (@ui) start/stop Playwright trace & store artifact path
 - [ ] Journey visualization Phase A: scaffold (linear Mermaid per scenario + trace links)
+ - [x] Journey visualization Phase A: scaffold (linear Mermaid per scenario + trace links) (script: journeys:gen)
 - [ ] Duplication audit script (Gherkin steps vs Playwright spec assertions) & report
 - [ ] Journey visualization Phase B: enforce de-duplication policy (<25% duplicated assertions)
 - [ ] Journey visualization Phase C: step duration extraction + pass/fail node colorization

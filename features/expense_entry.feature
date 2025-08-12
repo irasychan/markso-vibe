@@ -4,15 +4,18 @@ Feature: Expense Entry
   Background:
     Given the expense list is empty
 
+  @logic
   Scenario: Record a valid expense with a new category
     When I enter an expense with summary "Coffee" amount 3.50 category "Food"
     Then the expense is stored
     And the category "Food" is available for future selection
 
+  @logic
   Scenario: Reject negative amount
     When I enter an expense with summary "Refund" amount -2.00 category "Misc"
     Then I see a validation error "Amount must be positive"
 
+  @logic
   Scenario: Reject missing summary
     When I enter an expense with summary "" amount 5.00 category "Snacks"
     Then I see a validation error "Summary is required"
