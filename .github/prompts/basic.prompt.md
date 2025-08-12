@@ -1,4 +1,4 @@
 ---
 mode: agent
 ---
-Define the task to achieve, including specific requirements, constraints, and success criteria.
+update FEATURE.md with Current Progress and Next Target Suggestions

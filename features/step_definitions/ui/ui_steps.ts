@@ -42,6 +42,18 @@ Then('I should see an inline error {string}', async (message: string) => {
   await page.waitForSelector(`[data-test="error"]:has-text("${message}")`);
 });
 
+Then('I should see only {int} distinct category label {string}', async (count: number, category: string) => {
+  const locators = await page.locator('[data-test="expense-row"]').all();
+  const found = new Set<string>();
+  for (const row of locators) {
+    const text = await row.textContent();
+    if (text && text.includes(category)) found.add(category);
+  }
+  if (found.size !== count) {
+    throw new Error(`Expected ${count} distinct '${category}' categories, found ${found.size}`);
+  }
+});
+
 async function assertRow(row: import('playwright').Locator, amount: string, category: string) {
   await row.waitFor();
   const text = await row.textContent();

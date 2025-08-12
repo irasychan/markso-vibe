@@ -25,3 +25,28 @@ Feature: Expense Entry UI
     And I fill the category field with "Snacks"
     And I submit the expense form
     Then I should see an inline error "Summary is required"
+
+  Scenario: Duplicate category silently reused
+    When I fill the summary field with "Lunch"
+    And I fill the amount field with "12"
+    And I fill the category field with "Food"
+    And I submit the expense form
+    And I fill the summary field with "Dinner"
+    And I fill the amount field with "20"
+    And I fill the category field with "  food  "
+    And I submit the expense form
+    Then I should see only 1 distinct category label "food"
+
+  Scenario: Reject amount with more than 2 decimals
+    When I fill the summary field with "Rounded"
+    And I fill the amount field with "3.567"
+    And I fill the category field with "Misc"
+    And I submit the expense form
+    Then I should see an inline error "Amount must have at most 2 decimals"
+
+  Scenario: Blank category defaults to uncategorized
+    When I fill the summary field with "Water"
+    And I fill the amount field with "1"
+    And I fill the category field with ""
+    And I submit the expense form
+    Then I should see an expense row with summary "Water" amount "$1.00" category "uncategorized"
